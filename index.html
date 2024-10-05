@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Prediction App</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
+</head>
+<body>
+    <div class="container">
+        <h1>Vegetable Price Prediction</h1>
+        
+        <div class="box">
+            <h3>Get Weather Data</h3>
+            <button id="get-weather-btn">Get Weather</button>
+            <div id="weather-result"></div>
+        </div>
+
+        <div class="box">
+            <h3>Price Prediction</h3>
+            <select id="vegetable-select">
+                <option value="Tomato">Tomato</option>
+                <option value="Potato">Potato</option>
+                <option value="Onion">Onion</option>
+                <option value="Carrot">Carrot</option>
+                <option value="Spinach">Spinach</option>
+            </select>
+
+            <select id="city-select">
+                <option value="Mumbai">Mumbai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Kolkata">Kolkata</option>
+            </select>
+
+            <button id="get-price-btn">Get Price Prediction</button>
+            <div id="price-result"></div>
+            <div id="price-trend"></div>
+        </div>
+
+        <div class="box">
+            <h3>Twitter Data</h3>
+            <input type="text" id="twitter-query" placeholder="Enter topic for Twitter data">
+            <button id="get-twitter-btn">Get Word Cloud</button>
+            <img id="wordcloud" src="" alt="Word Cloud" style="display:none; margin-top: 20px;">
+        </div>
+    </div>
+
+    <script>
+        // Get weather data
+        $('#get-weather-btn').click(function() {
+            $.get('/get_weather_data', function(data) {
+                $('#weather-result').text(JSON.stringify(data, null, 2)); // Display raw weather data
+            });
+        });
+
+        // Get price prediction
+        $('#get-price-btn').click(function() {
+            const vegetable = $('#vegetable-select').val();
+            const city = $('#city-select').val();
+
+            $.post('/get_price_prediction', { input: { vegetable: vegetable, city: city }}, function(data) {
+                $('#price-result').html(`
+                    <p>Predicted Price: ${data.predicted_price}</p>
+                    <p>Days to Price Change: ${data.days_to_change}</p>
+                `);
+                // Generate price trend chart (placeholder)
+                $('#price-trend').html(`<p>Price Trend: ${JSON.stringify(data.price_trend)}</p>`); // You can replace with actual chart rendering
+            });
+        });
+
+        // Get Twitter data
+        $('#get-twitter-btn').click(function() {
+            const query = $('#twitter-query').val();
+            $.get(`/get_twitter_data?query=${query}`, function(data) {
+                $('#wordcloud').attr('src', data.wordcloud_url).show(); // Display word cloud
+            });
+        });
+    </script>
+</body>
+</html>
